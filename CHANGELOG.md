@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## [0.6.0-uberfoo]() - unreleased fork
+
 ## [0.5.0-dev](https://github.com/tuupola/hagl_pico_mipi/compare/0.4.0...master) - unreleased
 
 ### Fixed

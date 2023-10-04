@@ -39,6 +39,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <hardware/spi.h>
+
 #include <hagl/backend.h>
 
 #include "hagl_hal_color.h"
@@ -129,6 +131,29 @@ extern "C" {
 #ifdef HAGL_HAL_USE_SINGLE_BUFFER
 #undef HAGL_HAS_HAL_BACK_BUFFER
 #endif
+
+typedef struct {
+    uint32_t    spi_freq;
+    spi_inst_t  *spi;
+    int16_t     pin_cs;
+    int16_t     pin_dc;
+    int16_t     pin_rst;
+    int16_t     pin_bl;
+    int16_t     pin_clk;
+    int16_t     pin_mosi;
+    int16_t     pin_miso;
+    int16_t     pin_power;
+    int16_t     pin_te;
+    uint8_t     pixel_format;
+    uint8_t     address_mode;
+    uint16_t    width, height, offset_x, offset_y;
+    uint8_t     depth;
+    int8_t      invert;
+    hagl_bitmap_t *bb;
+} mipi_display_config_t;
+
+#define GET_MIPI_DISPLAY_CONFIG(self)         (mipi_display_config_t *)((hagl_backend_t *)self)->display_config
+#define GET_BB(self)                          (GET_MIPI_DISPLAY_CONFIG(self))->bb
 
 /**
  * Initialize the HAL

@@ -137,7 +137,12 @@ hagl_hal_init(hagl_backend_t *backend)
     mipi_display_config_t *display_config = (mipi_display_config_t *)backend->display_config;
     mipi_display_init(display_config);
 
+    /* Initialize dynamic display information */
     display_config->bb = calloc(sizeof(hagl_bitmap_t), sizeof(uint8_t));
+    display_config->prev_clip.x0 = 0;
+    display_config->prev_clip.x1 = 0;
+    display_config->prev_clip.y0 = 0;
+    display_config->prev_clip.y1 = 0;
 
     if (!backend->buffer) {
         backend->buffer = calloc(display_config->width * display_config->height * (display_config->depth / 8), sizeof(uint8_t));
@@ -157,7 +162,7 @@ hagl_hal_init(hagl_backend_t *backend)
     backend->scale_blit = scale_blit;
     backend->flush = flush;
 
-    hagl_bitmap_init(display_config->bb, backend->width, backend->height, backend->depth, backend->buffer);
+    hagl_bitmap_init(display_config->bb, display_config->width, display_config->height, display_config->depth, backend->buffer);
     hagl_hal_debug("Bitmap initialized: %p.\n", (void *) display_config->bb);
 }
 

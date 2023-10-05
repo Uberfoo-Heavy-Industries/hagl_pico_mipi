@@ -52,64 +52,6 @@ extern "C" {
 /* https://www.waveshare.com/wiki/RP2040-LCD-0.96     */
 /* https://botland.store/search?s=5904422381578       */
 
-#ifndef MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ
-#define MIPI_DISPLAY_SPI_CLOCK_SPEED_HZ     (62500000)
-#endif
-#ifndef MIPI_DISPLAY_SPI_PORT
-#define MIPI_DISPLAY_SPI_PORT       (spi1)
-#endif
-#ifndef MIPI_DISPLAY_PIN_CS
-#define MIPI_DISPLAY_PIN_CS         (9)
-#endif
-#ifndef MIPI_DISPLAY_PIN_DC
-#define MIPI_DISPLAY_PIN_DC         (8)
-#endif
-#ifndef MIPI_DISPLAY_PIN_RST
-#define MIPI_DISPLAY_PIN_RST        (12)
-#endif
-#ifndef MIPI_DISPLAY_PIN_BL
-#define MIPI_DISPLAY_PIN_BL         (13)
-#endif
-#ifndef MIPI_DISPLAY_PIN_CLK
-#define MIPI_DISPLAY_PIN_CLK        (10)
-#endif
-#ifndef MIPI_DISPLAY_PIN_MOSI
-#define MIPI_DISPLAY_PIN_MOSI       (11)
-#endif
-#ifndef MIPI_DISPLAY_PIN_MISO
-#define MIPI_DISPLAY_PIN_MISO       (-1)
-#endif
-#ifndef MIPI_DISPLAY_PIN_POWER
-#define MIPI_DISPLAY_PIN_POWER      (-1)
-#endif
-#ifndef MIPI_DISPLAY_PIN_TE
-#define MIPI_DISPLAY_PIN_TE         (-1)
-#endif
-
-#ifndef MIPI_DISPLAY_PIXEL_FORMAT
-#define MIPI_DISPLAY_PIXEL_FORMAT   (MIPI_DCS_PIXEL_FORMAT_16BIT)
-#endif
-#ifndef MIPI_DISPLAY_ADDRESS_MODE
-#define MIPI_DISPLAY_ADDRESS_MODE   (MIPI_DCS_ADDRESS_MODE_BGR)
-#endif
-#ifndef MIPI_DISPLAY_WIDTH
-#define MIPI_DISPLAY_WIDTH          (80)
-#endif
-#ifndef MIPI_DISPLAY_HEIGHT
-#define MIPI_DISPLAY_HEIGHT         (160)
-#endif
-#ifndef MIPI_DISPLAY_DEPTH
-#define MIPI_DISPLAY_DEPTH          (16)
-#endif
-#ifndef MIPI_DISPLAY_OFFSET_X
-#define MIPI_DISPLAY_OFFSET_X       (26)
-#endif
-#ifndef MIPI_DISPLAY_OFFSET_Y
-#define MIPI_DISPLAY_OFFSET_Y       (1)
-#endif
-#ifndef MIPI_DISPLAY_INVERT
-#define MIPI_DISPLAY_INVERT         (1)
-#endif
 
 #ifndef HAGL_HAL_PIXEL_SIZE
 #define HAGL_HAL_PIXEL_SIZE         (1)
@@ -149,6 +91,8 @@ typedef struct {
     uint16_t    width, height, offset_x, offset_y;
     uint8_t     depth;
     int8_t      invert;
+    int8_t      init_spi;
+    hagl_window_t prev_clip;
     hagl_bitmap_t *bb;
 } mipi_display_config_t;
 

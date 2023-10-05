@@ -145,15 +145,14 @@ mipi_display_set_address_xyxy(mipi_display_config_t *display_config, uint16_t x1
 {
     uint8_t command;
     uint8_t data[4];
-    static uint16_t prev_x1, prev_x2, prev_y1, prev_y2;
 
-    x1 = x1 + MIPI_DISPLAY_OFFSET_X;
-    y1 = y1 + MIPI_DISPLAY_OFFSET_Y;
-    x2 = x2 + MIPI_DISPLAY_OFFSET_X;
-    y2 = y2 + MIPI_DISPLAY_OFFSET_Y;
+    x1 = x1 + display_config->offset_x;
+    y1 = y1 + display_config->offset_y;
+    x2 = x2 + display_config->offset_x;
+    y2 = y2 + display_config->offset_y;
 
     /* Change column address only if it has changed. */
-    if ((prev_x1 != x1 || prev_x2 != x2)) {
+    if ((display_config->prev_clip.x0 != x1 || display_config->prev_clip.x1 != x2)) {
         mipi_display_write_command(display_config, MIPI_DCS_SET_COLUMN_ADDRESS);
         data[0] = x1 >> 8;
         data[1] = x1 & 0xff;
@@ -161,12 +160,12 @@ mipi_display_set_address_xyxy(mipi_display_config_t *display_config, uint16_t x1
         data[3] = x2 & 0xff;
         mipi_display_write_data(display_config, data, 4);
 
-        prev_x1 = x1;
-        prev_x2 = x2;
+        display_config->prev_clip.x0 = x1;
+        display_config->prev_clip.x1 = x2;
     }
 
     /* Change page address only if it has changed. */
-    if ((prev_y1 != y1 || prev_y2 != y2)) {
+    if ((display_config->prev_clip.y0 != y1 || display_config->prev_clip.y1 != y2)) {
         mipi_display_write_command(display_config, MIPI_DCS_SET_PAGE_ADDRESS);
         data[0] = y1 >> 8;
         data[1] = y1 & 0xff;
@@ -174,8 +173,8 @@ mipi_display_set_address_xyxy(mipi_display_config_t *display_config, uint16_t x1
         data[3] = y2 & 0xff;
         mipi_display_write_data(display_config, data, 4);
 
-        prev_y1 = y1;
-        prev_y2 = y2;
+        display_config->prev_clip.y0 = y1;
+        display_config->prev_clip.y1 = y2;
     }
 
     mipi_display_write_command(display_config, MIPI_DCS_WRITE_MEMORY_START);
@@ -206,33 +205,34 @@ mipi_display_set_address_xy(mipi_display_config_t *display_config, uint16_t x1, 
 static void
 mipi_display_spi_master_init(mipi_display_config_t *display_config)
 {
-    hagl_hal_debug("%s\n", "Initialising SPI.");
+    if (display_config->init_spi > 0) {
+        hagl_hal_debug("%s\n", "Initialising SPI.");
 
-    gpio_set_function(display_config->pin_dc, GPIO_FUNC_SIO);
-    gpio_set_dir(display_config->pin_dc, GPIO_OUT);
+        gpio_set_function(display_config->pin_dc, GPIO_FUNC_SIO);
+        gpio_set_dir(display_config->pin_dc, GPIO_OUT);
 
-    gpio_set_function(display_config->pin_cs, GPIO_FUNC_SIO);
-    gpio_set_dir(display_config->pin_cs, GPIO_OUT);
+        gpio_set_function(display_config->pin_clk,  GPIO_FUNC_SPI);
+        gpio_set_function(display_config->pin_mosi, GPIO_FUNC_SPI);
 
-    gpio_set_function(display_config->pin_clk,  GPIO_FUNC_SPI);
-    gpio_set_function(display_config->pin_mosi, GPIO_FUNC_SPI);
+        if (display_config->pin_miso > 0) {
+            gpio_set_function(display_config->pin_miso, GPIO_FUNC_SPI);
+        }
 
-    if (display_config->pin_miso > 0) {
-        gpio_set_function(display_config->pin_miso, GPIO_FUNC_SPI);
+        /* Set CS high to ignore any traffic on SPI bus. */
+        gpio_put(display_config->pin_cs, 1);
+
+        spi_init(display_config->spi, display_config->spi_freq);
+        spi_set_format(display_config->spi, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
+        uint32_t baud = spi_set_baudrate(display_config->spi, display_config->spi_freq);
+        uint32_t peri = clock_get_hz(clk_peri);
+        uint32_t sys = clock_get_hz(clk_sys);
+        hagl_hal_debug("Baudrate is set to %d.\n", baud);
+        hagl_hal_debug("clk_peri %d.\n", peri);
+        hagl_hal_debug("clk_sys %d.\n", sys);
+    } else {
+        hagl_hal_debug("skipping spy init %d.\n", (void *)display_config);
     }
 
-    /* Set CS high to ignore any traffic on SPI bus. */
-    gpio_put(display_config->pin_cs, 1);
-
-    spi_init(display_config->spi, display_config->spi_freq);
-    spi_set_format(display_config->spi, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
-
-    uint32_t baud = spi_set_baudrate(display_config->spi, display_config->spi_freq);
-    uint32_t peri = clock_get_hz(clk_peri);
-    uint32_t sys = clock_get_hz(clk_sys);
-    hagl_hal_debug("Baudrate is set to %d.\n", baud);
-    hagl_hal_debug("clk_peri %d.\n", peri);
-    hagl_hal_debug("clk_sys %d.\n", sys);
 }
 
 void

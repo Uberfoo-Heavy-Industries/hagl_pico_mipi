@@ -138,14 +138,14 @@ hagl_hal_init(hagl_backend_t *backend)
     mipi_display_init(display_config);
 
     /* Initialize dynamic display information */
-    display_config->bb = calloc(sizeof(hagl_bitmap_t), sizeof(uint8_t));
+    display_config->bb = backend->haglCalloc(sizeof(hagl_bitmap_t), sizeof(uint8_t));
     display_config->prev_clip.x0 = 0;
     display_config->prev_clip.x1 = 0;
     display_config->prev_clip.y0 = 0;
     display_config->prev_clip.y1 = 0;
 
     if (!backend->buffer) {
-        backend->buffer = calloc(display_config->width * display_config->height * (display_config->depth / 8), sizeof(uint8_t));
+        backend->buffer = backend->haglCalloc(display_config->width * display_config->height * (display_config->depth / 8), sizeof(uint8_t));
         hagl_hal_debug("Allocated back buffer to address %p.\n", (void *) backend->buffer);
     } else {
         hagl_hal_debug("Using provided back buffer at address %p.\n", (void *) backend->buffer);

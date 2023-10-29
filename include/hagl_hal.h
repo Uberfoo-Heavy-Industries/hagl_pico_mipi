@@ -94,6 +94,7 @@ typedef struct {
     int8_t      init_spi;
     hagl_window_t prev_clip;
     hagl_bitmap_t *bb;
+    void *(*haglCalloc)(size_t, size_t);
 } mipi_display_config_t;
 
 #define GET_MIPI_DISPLAY_CONFIG(self)         (mipi_display_config_t *)((hagl_backend_t *)self)->display_config
